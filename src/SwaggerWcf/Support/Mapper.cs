@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SwaggerWcf.Attributes;
+using SwaggerWcf.Models; 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,11 +8,9 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions; 
 using System.Web;
-using SwaggerWcf.Attributes;
-using SwaggerWcf.Models;
+using System.Threading.Tasks;
 
 namespace SwaggerWcf.Support
 {
@@ -30,7 +30,7 @@ namespace SwaggerWcf.Support
             List<Path> paths = new List<Path>();
             List<Tuple<string, PathAction>> pathActions = new List<Tuple<string, PathAction>>();
 
-            List <Type> types;
+            HashSet<Type> types = new HashSet<Type>();
             Type serviceType;
             if (markedType.IsInterface)
             {
@@ -43,14 +43,15 @@ namespace SwaggerWcf.Support
 
                 serviceType = allTypes.Except(allTypes.Select(type => type.BaseType)).Single();
 
-                types = new List<Type> { markedType };
+                types.Add(markedType);
             }
             else
             {
                 serviceType = markedType;
 
                 //search all interfaces for this type for potential DataContracts, and build a set of items
-                types = serviceType.GetInterfaces().ToList();
+
+                types.UnionWith(serviceType.GetInterfaces());
                 types.Add(serviceType);
             }
 
@@ -72,8 +73,11 @@ namespace SwaggerWcf.Support
                     {
                         foreach (var baseInterface in baseInterfaces)
                         {
-                            var _map = serviceType.GetInterfaceMap(baseInterface);
-                            pathActions.AddRange(GetActions(_map.TargetMethods, _map.InterfaceMethods, definitionsTypesList));
+                            if (types.Contains(baseInterface))
+                            {
+                                var _map = serviceType.GetInterfaceMap(baseInterface);
+                                pathActions.AddRange(GetActions(_map.TargetMethods, _map.InterfaceMethods, definitionsTypesList));
+                            }
                         }
                     }
                 }
@@ -83,13 +87,15 @@ namespace SwaggerWcf.Support
                 }
             }
 
+            pathActions = pathActions.GroupBy(x => x.Item2.OperationId).Select(x => x.First()).ToList();
+
             foreach (var pathAction in pathActions)
             {
                 var path = pathAction.Item1;
                 if (!path.StartsWith("/"))
                     path = "/" + path;
 
-                if (string.IsNullOrWhiteSpace(basePath) == false)
+                if (Extensions.IsNullOrWhiteSpace(basePath) == false)
                     path = basePath + path;
 
                 GetPath(path, paths).Actions.Add(pathAction.Item2);
@@ -119,7 +125,7 @@ namespace SwaggerWcf.Support
             string path = basePath;
             if (basePath.EndsWith("/") && pathUrl.StartsWith("/"))
                 path += pathUrl.Substring(1);
-            else if (!basePath.EndsWith("/") && !string.IsNullOrWhiteSpace(pathUrl) && !pathUrl.StartsWith("/"))
+            else if (!basePath.EndsWith("/") && !Extensions.IsNullOrWhiteSpace(pathUrl) && !pathUrl.StartsWith("/"))
                 path += "/" + pathUrl;
             else
                 path += pathUrl;
@@ -202,7 +208,7 @@ namespace SwaggerWcf.Support
                     "";
 
                 ExternalDocumentation externalDocs = null;
-                if (!string.IsNullOrWhiteSpace(externalDocsDescription) || !string.IsNullOrWhiteSpace(externalDocsUrl))
+                if (!Extensions.IsNullOrWhiteSpace(externalDocsDescription) || !Extensions.IsNullOrWhiteSpace(externalDocsUrl))
                 {
                     externalDocs = new ExternalDocumentation
                     {
@@ -219,7 +225,7 @@ namespace SwaggerWcf.Support
                 string operationPath =
                     Helpers.GetCustomAttributeValue<string, SwaggerWcfPathAttribute>(implementation, "OperationPath") ??
                     Helpers.GetCustomAttributeValue<string, SwaggerWcfPathAttribute>(declaration, "OperationPath");
-                if (!string.IsNullOrWhiteSpace(operationPath))
+                if (!Extensions.IsNullOrWhiteSpace(operationPath))
                 {
                     uriTemplate = ConcatPaths(operationPath, uriTemplate);
                 }
@@ -304,7 +310,7 @@ namespace SwaggerWcf.Support
                     {
                         bool required = settings != null && settings.Required;
 
-                        if (!required && !parameter.HasDefaultValue)
+                        if (!required && parameter.DefaultValue != null)
                             required = true;
 
                         typeBuilder.AddField(parameter.Name, parameter.ParameterType, required);
@@ -338,7 +344,7 @@ namespace SwaggerWcf.Support
                     });
                 }
 
-                if (!string.IsNullOrWhiteSpace(uriTemplate))
+                if (!Extensions.IsNullOrWhiteSpace(uriTemplate))
                 {
                     int indexOfQuestionMark = uriTemplate.IndexOf('?');
                     if (indexOfQuestionMark >= 0)
@@ -408,7 +414,8 @@ namespace SwaggerWcf.Support
             if (inType == InType.Path)
                 required = true;
 
-            if (!required && !parameter.HasDefaultValue)
+
+            if (!required && parameter.DefaultValue != null)
                 required = true;
 
             Type paramType = settings == null || settings.ParameterType == null
@@ -417,7 +424,7 @@ namespace SwaggerWcf.Support
             if (paramType.IsGenericType && paramType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 required = false;
-                paramType = paramType.GenericTypeArguments[0];
+                paramType = paramType.GetGenericArguments()[0];
             }
 
             if (typeFormat.Type == ParameterType.Object)
@@ -667,7 +674,7 @@ namespace SwaggerWcf.Support
                               ?? declaration.ReturnType;
 
             if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                returnType = returnType.GenericTypeArguments[0];
+                returnType = returnType.GetGenericArguments()[0];
 
             Schema schema = returnType.IsEnum
                                 ? BuildSchemaForEnum(returnType, definitionsTypesList)
@@ -726,7 +733,7 @@ namespace SwaggerWcf.Support
 
         private Example GetExample(SwaggerWcfResponseAttribute ra)
         {
-            if (string.IsNullOrWhiteSpace(ra.ExampleContent))
+            if (Extensions.IsNullOrWhiteSpace(ra.ExampleContent))
                 return null;
 
             return new Example

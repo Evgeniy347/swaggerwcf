@@ -8,7 +8,7 @@ namespace SwaggerWcf.Support
     public static class MethodInfoExtensions
     {
         public static string GetWrappedName(this MethodInfo implementation, MethodInfo declaration)
-        {
+        { 
             return implementation.GetCustomAttribute<SwaggerWcfRequestTypeAttribute>()?.Name
                    ?? declaration.GetCustomAttribute<SwaggerWcfRequestTypeAttribute>()?.Name
                    ?? (implementation.Name.Contains('.')

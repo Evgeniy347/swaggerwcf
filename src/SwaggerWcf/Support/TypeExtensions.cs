@@ -25,20 +25,20 @@ namespace SwaggerWcf.Support
         public static string GetModelWrappedName(this Type type) =>
             type.GetCustomAttribute<SwaggerWcfDefinitionAttribute>()?.ModelName ?? type.FullName;
 
-        internal static Info GetServiceInfo(this TypeInfo typeInfo)
+        internal static Info GetServiceInfo(this Type type)
         {
-            var infoAttr = typeInfo.GetCustomAttribute<SwaggerWcfServiceInfoAttribute>() ??
-                throw new ArgumentException($"{typeInfo.FullName} does not have {nameof(SwaggerWcfServiceInfoAttribute)}");
+            var infoAttr = type.GetCustomAttribute<SwaggerWcfServiceInfoAttribute>() ??
+                throw new ArgumentException($"{type.FullName} does not have {nameof(SwaggerWcfServiceInfoAttribute)}");
 
             var info = (Info)infoAttr;
 
-            var contactAttr = typeInfo.GetCustomAttribute<SwaggerWcfContactInfoAttribute>();
+            var contactAttr = type.GetCustomAttribute<SwaggerWcfContactInfoAttribute>();
             if (contactAttr != null)
             {
                 info.Contact = (InfoContact)contactAttr;
             }
 
-            var licenseAttr = typeInfo.GetCustomAttribute<SwaggerWcfLicenseInfoAttribute>();
+            var licenseAttr = type.GetCustomAttribute<SwaggerWcfLicenseInfoAttribute>();
             if (licenseAttr != null)
             {
                 info.License = (InfoLicense)licenseAttr;

@@ -60,7 +60,7 @@ namespace SwaggerWcf.Models
             if (!skipStartEndObject)
                 writer.WriteStartObject();
 
-            if (!string.IsNullOrWhiteSpace(Name))
+            if (!Extensions.IsNullOrWhiteSpace(Name))
             {
                 writer.WritePropertyName("name");
                 writer.WriteValue(Name);
@@ -70,7 +70,7 @@ namespace SwaggerWcf.Models
                 writer.WritePropertyName("in");
                 writer.WriteValue(In.ToString().ToLower());
             }
-            if (!string.IsNullOrWhiteSpace(Description))
+            if (!Extensions.IsNullOrWhiteSpace(Description))
             {
                 writer.WritePropertyName("description");
                 writer.WriteValue(Description);
@@ -103,7 +103,7 @@ namespace SwaggerWcf.Models
                         writer.WriteEndObject();
                     }
 
-                    if (!string.IsNullOrWhiteSpace(TypeFormat.Format))
+                    if (!Extensions.IsNullOrWhiteSpace(TypeFormat.Format))
                     {
                         writer.WritePropertyName("format");
                         writer.WriteValue(TypeFormat.Format);
@@ -115,7 +115,7 @@ namespace SwaggerWcf.Models
                 {
                     writer.WritePropertyName("type");
                     writer.WriteValue(TypeFormat.Type.ToString().ToLower());
-                    if (!string.IsNullOrWhiteSpace(TypeFormat.Format))
+                    if (!Extensions.IsNullOrWhiteSpace(TypeFormat.Format))
                     {
                         writer.WritePropertyName("format");
                         writer.WriteValue(TypeFormat.Format);
@@ -137,7 +137,7 @@ namespace SwaggerWcf.Models
                 writer.WritePropertyName("collectionFormat");
                 writer.WriteValue(CollectionFormat);
             }
-            if (!string.IsNullOrWhiteSpace(Default))
+            if (!Extensions.IsNullOrWhiteSpace(Default))
             {
                 writer.WritePropertyName("default");
                 writer.WriteValue(Default);
@@ -166,7 +166,7 @@ namespace SwaggerWcf.Models
                 writer.WritePropertyName("minLength");
                 writer.WriteValue(MinLength);
             }
-            if (!string.IsNullOrWhiteSpace(Pattern))
+            if (!Extensions.IsNullOrWhiteSpace(Pattern))
             {
                 writer.WritePropertyName("pattern");
                 writer.WriteValue(Pattern);

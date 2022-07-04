@@ -19,14 +19,14 @@ namespace SwaggerWcf.Models
             {
                 writer.WritePropertyName("type");
                 writer.WriteValue(TypeFormat.Type.ToString().ToLower());
-                if (!string.IsNullOrWhiteSpace(TypeFormat.Format))
+                if (!Extensions.IsNullOrWhiteSpace(TypeFormat.Format))
                 {
                     writer.WritePropertyName("format");
                     writer.WriteValue(TypeFormat.Format);
                 }
             }
             
-            if (!string.IsNullOrWhiteSpace(Ref))
+            if (!Extensions.IsNullOrWhiteSpace(Ref))
             {
                 writer.WritePropertyName("$ref");
                 writer.WriteValue($"#/definitions/{Ref}");

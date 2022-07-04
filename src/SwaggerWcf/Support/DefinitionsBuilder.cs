@@ -113,8 +113,8 @@ namespace SwaggerWcf.Support
                 definitionType.GetCustomAttribute<SwaggerWcfDefinitionAttribute>();
             if (definitionAttr != null)
             {
-                if (!string.IsNullOrWhiteSpace(definitionAttr.ExternalDocsDescription) ||
-                    !string.IsNullOrWhiteSpace(definitionAttr.ExternalDocsUrl))
+                if (!Extensions.IsNullOrWhiteSpace(definitionAttr.ExternalDocsDescription) ||
+                    !Extensions.IsNullOrWhiteSpace(definitionAttr.ExternalDocsUrl))
                 {
                     schema.ExternalDocumentation = new ExternalDocumentation
                     {
@@ -123,7 +123,7 @@ namespace SwaggerWcf.Support
                     };
                 }
 
-                if (!string.IsNullOrWhiteSpace(definitionAttr.ModelName))
+                if (!Extensions.IsNullOrWhiteSpace(definitionAttr.ModelName))
                     schema.Name = definitionAttr.ModelName;
             }
         }
@@ -217,7 +217,7 @@ namespace SwaggerWcf.Support
         
         public static int GetEnumMemberValue(Type enumType, string enumName)
         {
-            if (string.IsNullOrWhiteSpace(enumName))
+            if (Extensions.IsNullOrWhiteSpace(enumName))
                 return 0;
             var enumVal = Enum.Parse(enumType, enumName, true);
             var underlyingType = Enum.GetUnderlyingType(enumType);

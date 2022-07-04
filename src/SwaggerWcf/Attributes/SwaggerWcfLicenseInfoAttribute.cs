@@ -25,7 +25,7 @@ namespace SwaggerWcf.Attributes
         /// <param name="name">The license name used for the API.</param>
         public SwaggerWcfLicenseInfoAttribute(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (Extensions.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentNullException(nameof(name));
             }

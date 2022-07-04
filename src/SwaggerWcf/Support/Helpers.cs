@@ -1,11 +1,11 @@
-﻿using System;
+﻿using SwaggerWcf.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Web;
 using SwaggerWcf.Configuration;
-using SwaggerWcf.Models;
 
 namespace SwaggerWcf.Support
 {
@@ -113,7 +113,7 @@ namespace SwaggerWcf.Support
             //it's a Nullable<T> so treat it as T - we'll handle making it not-required later
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                return MapSwaggerType(type.GenericTypeArguments[0], definitions);
+                return MapSwaggerType(type.GetGenericArguments()[0], definitions);
             }
 
             //it's a complex type, so we'll need to map it later

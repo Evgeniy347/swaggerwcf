@@ -36,10 +36,10 @@ namespace SwaggerWcf.Attributes
         /// <param name="version">Provides the version of the application API (not to be confused with the specification version)</param>
         public SwaggerWcfServiceInfoAttribute(string title, string version)
         {
-            if (string.IsNullOrWhiteSpace(title))
+            if (Extensions.IsNullOrWhiteSpace(title))
                 throw new ArgumentNullException(nameof(title));
 
-            if (string.IsNullOrWhiteSpace(version))
+            if (Extensions.IsNullOrWhiteSpace(version))
                 throw new ArgumentNullException(nameof(version));
 
             Title = title;

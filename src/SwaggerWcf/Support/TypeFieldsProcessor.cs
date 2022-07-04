@@ -1,12 +1,11 @@
-﻿using System;
+﻿using SwaggerWcf.Attributes;
+using SwaggerWcf.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using SwaggerWcf.Attributes;
-using SwaggerWcf.Models;
 
 namespace SwaggerWcf.Support
 {
@@ -143,9 +142,10 @@ namespace SwaggerWcf.Support
                 {
                     var enumMemberItem = Enum.Parse(propType, enumName, true);
                     string enumMemberDescription = DefinitionsBuilder.GetEnumDescription((Enum)enumMemberItem);
-                    enumMemberDescription = (string.IsNullOrWhiteSpace(enumMemberDescription)) ? "" : $"({enumMemberDescription})";
+                    enumMemberDescription = (Extensions.IsNullOrWhiteSpace(enumMemberDescription)) ? "" : $"({enumMemberDescription})";
                     int enumMemberValue = DefinitionsBuilder.GetEnumMemberValue(propType, enumName);
-                    if (prop.Description != null) prop.Enum.Add(enumMemberValue);
+                    if (prop.Description != null)
+                        prop.Enum.Add(enumMemberValue);
                     enumDescription += $"    {enumName}{System.Web.HttpUtility.HtmlEncode(" = ")}{enumMemberValue} {enumMemberDescription}\r\n";
                 }
 

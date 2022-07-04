@@ -66,7 +66,7 @@ namespace SwaggerWcf
                 if (BasePath != null)
                     service.BasePath = BasePath;
 
-                string swagger = Serializer.Process(service);
+                string swagger = Serializer.SerializeJson(service);
                 if (SwaggerFiles.ContainsKey(path) == false)
                     SwaggerFiles.Add(path, swagger);
             }
@@ -85,18 +85,7 @@ namespace SwaggerWcf
 
             return key != null ? SwaggerFiles[key] : "";
         }
-
-        public static void SetCustomZip(Stream customSwaggerUiZipStream)
-        {
-            if (customSwaggerUiZipStream != null)
-                Support.StaticContent.SetArchiveCustom(customSwaggerUiZipStream);
-        }
-
-        public static void SetCustomGetFile(GetFileCustomDelegate getFileCustom)
-        {
-            Support.StaticContent.GetFileCustom = getFileCustom;
-        }
-
+          
         public Stream GetSwaggerFile()
         {
             WebOperationContext woc = WebOperationContext.Current;
@@ -123,7 +112,7 @@ namespace SwaggerWcf
                 return null;
             }
 
-            if (string.IsNullOrWhiteSpace(content))
+            if (Extensions.IsNullOrWhiteSpace(content))
             {
                 string swaggerUrl = woc.IncomingRequest.UriTemplateMatch.BaseUri.LocalPath + "/swagger.json";
                 woc.OutgoingResponse.StatusCode = HttpStatusCode.Redirect;
@@ -135,21 +124,23 @@ namespace SwaggerWcf
                 ? content.Substring(0, content.IndexOf("?", StringComparison.Ordinal))
                 : content;
 
-            string contentType;
-            long contentLength;
-            Stream stream = Support.StaticContent.GetFile(filename, out contentType, out contentLength);
+            throw new NotImplementedException();
 
-            if (stream == Stream.Null)
-            {
-                woc.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
-                return null;
-            }
+            //string contentType;
+            //long contentLength;
+            //Stream stream = Support.StaticContent.GetFile(filename, out contentType, out contentLength);
 
-            woc.OutgoingResponse.StatusCode = HttpStatusCode.OK;
-            woc.OutgoingResponse.ContentLength = contentLength;
-            woc.OutgoingResponse.ContentType = contentType;
+            //if (stream == Stream.Null)
+            //{
+            //    woc.OutgoingResponse.StatusCode = HttpStatusCode.NotFound;
+            //    return null;
+            //}
 
-            return stream;
+            //woc.OutgoingResponse.StatusCode = HttpStatusCode.OK;
+            //woc.OutgoingResponse.ContentLength = contentLength;
+            //woc.OutgoingResponse.ContentType = contentType;
+
+            //return stream;
         }
     }
 }

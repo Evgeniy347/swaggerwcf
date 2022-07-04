@@ -30,7 +30,7 @@ namespace SwaggerWcf.Models
             {
                 // complex object
 
-                if (!string.IsNullOrWhiteSpace(Description))
+                if (!Extensions.IsNullOrWhiteSpace(Description))
                 {
                     writer.WritePropertyName("description");
                     writer.WriteValue(Description);
@@ -65,7 +65,7 @@ namespace SwaggerWcf.Models
             {
                 writer.WritePropertyName("type");
                 writer.WriteValue(TypeFormat.Type.ToString().ToLower());
-                if (!string.IsNullOrWhiteSpace(TypeFormat.Format))
+                if (!Extensions.IsNullOrWhiteSpace(TypeFormat.Format))
                 {
                     writer.WritePropertyName("format");
                     writer.WriteValue(TypeFormat.Format);
@@ -81,7 +81,7 @@ namespace SwaggerWcf.Models
                     {
                         writer.WritePropertyName("type");
                         writer.WriteValue(ArrayTypeFormat.Type.ToString().ToLower());
-                        if (!string.IsNullOrWhiteSpace(ArrayTypeFormat.Format))
+                        if (!Extensions.IsNullOrWhiteSpace(ArrayTypeFormat.Format))
                         {
                             writer.WritePropertyName("format");
                             writer.WriteValue(ArrayTypeFormat.Format);
@@ -96,7 +96,7 @@ namespace SwaggerWcf.Models
                     writer.WriteEndObject();
                 }
             }
-            else if (!string.IsNullOrWhiteSpace(Ref))
+            else if (!Extensions.IsNullOrWhiteSpace(Ref))
             {
                 writer.WritePropertyName("$ref");
                 writer.WriteValue(string.Format("#/definitions/{0}", Ref));

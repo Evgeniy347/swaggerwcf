@@ -22,7 +22,7 @@ namespace SwaggerWcf.Models
 
             writer.WriteStartObject();
 
-            if (!string.IsNullOrWhiteSpace(Description))
+            if (!Extensions.IsNullOrWhiteSpace(Description))
             {
                 writer.WritePropertyName("description");
                 writer.WriteValue(Description);

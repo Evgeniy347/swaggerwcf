@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using SwaggerWcf.Attributes;
+using SwaggerWcf.Configuration;
+using SwaggerWcf.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
-using SwaggerWcf.Attributes;
-using SwaggerWcf.Configuration;
-using SwaggerWcf.Models;
-using SettingElement = SwaggerWcf.Configuration.SettingElement;
+using SwaggerWcf.Support;
 
 namespace SwaggerWcf.Support
 {
@@ -15,25 +15,30 @@ namespace SwaggerWcf.Support
     {
         public static Service Build(string path)
         {
-            return BuildServiceCommon(path, BuildPaths);
+            return BuildServiceCommon(BuildPaths);
         }
 
-        public static Service Build<TBusiness>(string path)
+        public static Service Build(Type typeService)
         {
-            return BuildServiceCommon(path, BuildPaths<TBusiness>);
+            return BuildServiceCommon((x, y, z, k) => BuildPaths(typeService, x, y, z, k));
         }
 
-        private static Service BuildServiceCommon(string path, Action<Service, IList<string>, List<string>, IList<Type>> buildPaths)
+        public static Service Build<TBusiness>()
         {
-            const string sectionName = "swaggerwcf";
-            SwaggerWcfSection config =
+            return BuildServiceCommon(BuildPaths<TBusiness>);
+        }
+
+        private static Service BuildServiceCommon(Action<Service, IList<string>, List<string>, IList<Type>> buildPaths)
+        {
+            const string sectionName = "SwaggerWcf";
+           SwaggerWcfSection config =
                 (SwaggerWcfSection)(ConfigurationManager.GetSection(sectionName) ?? new SwaggerWcfSection());
 
             List<Type> definitionsTypesList = new List<Type>();
             Service service = new Service();
-            List<string> hiddenTags = SwaggerWcfEndpoint.FilterHiddenTags(path, GetHiddenTags(config));
-            List<string> visibleTags = SwaggerWcfEndpoint.FilterVisibleTags(path, GetVisibleTags(config));
-            IReadOnlyDictionary<string, string> settings = GetSettings(config);
+            List<string> hiddenTags = new List<string>();
+            List<string> visibleTags = new List<string>();
+            Dictionary<string, string> settings = GetSettings(config);
 
             ProcessSettings(service, settings);
 
@@ -61,13 +66,13 @@ namespace SwaggerWcf.Support
                        .ToList() ?? new List<string>();
         }
 
-        private static IReadOnlyDictionary<string, string> GetSettings(SwaggerWcfSection config)
+        private static Dictionary<string, string> GetSettings(SwaggerWcfSection config)
         {
-            return config.Settings?.OfType<SettingElement>().ToDictionary(se => se.Name, se => se.Value)
+            return config.Settings?.OfType<SwaggerSettingElement>().ToDictionary(se => se.Name, se => se.Value)
                 ?? new Dictionary<string, string>();
         }
 
-        private static void ProcessSettings(Service service, IReadOnlyDictionary<string, string> settings)
+        private static void ProcessSettings(Service service, Dictionary<string, string> settings)
         {
             if (settings.ContainsKey("BasePath"))
                 service.BasePath = settings["BasePath"];
@@ -112,7 +117,7 @@ namespace SwaggerWcf.Support
             var useBasePathProperty = types.Select(t => t.GetCustomAttribute<SwaggerWcfAttribute>().ServicePath)
                                    .Distinct()
                                    .Count() == 1;
-            
+
             foreach (var ti in types)
             {
                 var da = ti.GetCustomAttribute<SwaggerWcfAttribute>();
@@ -121,8 +126,8 @@ namespace SwaggerWcf.Support
                     service.Info = ti.GetServiceInfo();
 
                 var mapper = new Mapper(hiddenTags, visibleTags);
-                  
-                if (string.IsNullOrWhiteSpace(service.BasePath) && useBasePathProperty)
+
+                if (Extensions.IsNullOrWhiteSpace(service.BasePath) && useBasePathProperty)
                     service.BasePath = da.ServicePath;
 
                 if (service.BasePath != null && service.BasePath.EndsWith("/"))
@@ -139,21 +144,21 @@ namespace SwaggerWcf.Support
                         basePath = "/" + basePath;
                 }
 
-                var paths = mapper.FindMethods(ti.AsType(), definitionsTypesList, basePath);
+                var paths = mapper.FindMethods(ti, definitionsTypesList, basePath);
                 service.Paths.AddRange(paths);
             }
         }
 
-        private static IEnumerable<TypeInfo> GetAssemblyTypes(IList<string> hiddenTags)
+        private static IEnumerable<Type> GetAssemblyTypes(IList<string> hiddenTags)
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             foreach (var assembly in assemblies)
             {
-                IEnumerable<TypeInfo> types;
+                Type[] types = new Type[0];
                 try
                 {
-                    types = assembly.DefinedTypes;
+                    types = assembly.GetTypes();
                 }
                 catch (Exception)
                 {
@@ -161,10 +166,10 @@ namespace SwaggerWcf.Support
                     continue;
                 }
 
-                foreach (TypeInfo ti in types)
+                foreach (Type ti in types)
                 {
                     var da = ti.GetCustomAttribute<SwaggerWcfAttribute>();
-                    if (da == null || hiddenTags.Any(ht => ht == ti.AsType().Name))
+                    if (da == null || hiddenTags.Any(ht => ht == ti.Name))
                         continue;
 
                     yield return ti;
@@ -183,7 +188,27 @@ namespace SwaggerWcf.Support
 
             var mapper = new Mapper(hiddenTags, visibleTags);
 
-            if (string.IsNullOrWhiteSpace(service.BasePath))
+            if (Extensions.IsNullOrWhiteSpace(service.BasePath))
+                service.BasePath = da.ServicePath;
+
+            if (service.BasePath.EndsWith("/"))
+                service.BasePath = service.BasePath.Substring(0, service.BasePath.Length - 1);
+
+            var paths = mapper.FindMethods(type, definitionsTypesList);
+            service.Paths.AddRange(paths);
+        }
+
+        private static void BuildPaths(Type type, Service service, IList<string> hiddenTags, List<string> visibleTags, IList<Type> definitionsTypesList)
+        {
+            service.Paths = new List<Path>();
+
+            var da = type.GetCustomAttribute<SwaggerWcfAttribute>();
+            if (da == null || hiddenTags.Any(ht => ht == type.Name))
+                return;
+
+            var mapper = new Mapper(hiddenTags, visibleTags);
+
+            if (Extensions.IsNullOrWhiteSpace(service.BasePath))
                 service.BasePath = da.ServicePath;
 
             if (service.BasePath.EndsWith("/"))

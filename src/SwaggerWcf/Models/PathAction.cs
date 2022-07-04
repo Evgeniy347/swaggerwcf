@@ -59,13 +59,13 @@ namespace SwaggerWcf.Models
                 writer.WriteEndArray();
             }
 
-            if (!string.IsNullOrWhiteSpace(Summary))
+            if (!Extensions.IsNullOrWhiteSpace(Summary))
             {
                 writer.WritePropertyName("summary");
                 writer.WriteValue(Summary);
             }
 
-            if (!string.IsNullOrWhiteSpace(Description))
+            if (!Extensions.IsNullOrWhiteSpace(Description))
             {
                 writer.WritePropertyName("description");
                 writer.WriteValue(Description);
@@ -77,7 +77,7 @@ namespace SwaggerWcf.Models
                 ExternalDocs.Serialize(writer);
             }
 
-            if (!string.IsNullOrWhiteSpace(OperationId))
+            if (!Extensions.IsNullOrWhiteSpace(OperationId))
             {
                 writer.WritePropertyName("operationId");
                 writer.WriteValue(OperationId);

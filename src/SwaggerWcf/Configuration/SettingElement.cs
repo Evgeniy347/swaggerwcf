@@ -2,7 +2,7 @@
 
 namespace SwaggerWcf.Configuration
 {
-    public class SettingElement : ConfigurationElement
+    public class SwaggerSettingElement : ConfigurationElement
     {
         [ConfigurationProperty("name", IsRequired = true, IsKey = true)]
         public string Name

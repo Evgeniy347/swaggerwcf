@@ -21,22 +21,22 @@ namespace SwaggerWcf.Models
         {
             writer.WriteStartObject();
 
-            if (!string.IsNullOrWhiteSpace(Version))
+            if (!Extensions.IsNullOrWhiteSpace(Version))
             {
                 writer.WritePropertyName("version");
                 writer.WriteValue(Version);
             }
-            if (!string.IsNullOrWhiteSpace(Title))
+            if (!Extensions.IsNullOrWhiteSpace(Title))
             {
                 writer.WritePropertyName("title");
                 writer.WriteValue(Title);
             }
-            if (!string.IsNullOrWhiteSpace(Description))
+            if (!Extensions.IsNullOrWhiteSpace(Description))
             {
                 writer.WritePropertyName("description");
                 writer.WriteValue(Description);
             }
-            if (!string.IsNullOrWhiteSpace(TermsOfService))
+            if (!Extensions.IsNullOrWhiteSpace(TermsOfService))
             {
                 writer.WritePropertyName("termsOfService");
                 writer.WriteValue(TermsOfService);

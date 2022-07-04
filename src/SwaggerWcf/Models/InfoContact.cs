@@ -24,17 +24,17 @@ namespace SwaggerWcf.Models
         {
             writer.WriteStartObject();
 
-            if (!string.IsNullOrWhiteSpace(Name))
+            if (!Extensions.IsNullOrWhiteSpace(Name))
             {
                 writer.WritePropertyName("name");
                 writer.WriteValue(Name);
             }
-            if (!string.IsNullOrWhiteSpace(Email))
+            if (!Extensions.IsNullOrWhiteSpace(Email))
             {
                 writer.WritePropertyName("email");
                 writer.WriteValue(Email);
             }
-            if (!string.IsNullOrWhiteSpace(Url))
+            if (!Extensions.IsNullOrWhiteSpace(Url))
             {
                 writer.WritePropertyName("url");
                 writer.WriteValue(Url);

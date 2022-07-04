@@ -13,12 +13,12 @@ namespace SwaggerWcf.Models
         {
             writer.WriteStartObject();
 
-            if (!string.IsNullOrWhiteSpace(Description))
+            if (!Extensions.IsNullOrWhiteSpace(Description))
             {
                 writer.WritePropertyName("description");
                 writer.WriteValue(Description);
             }
-            if (!string.IsNullOrWhiteSpace(Url))
+            if (!Extensions.IsNullOrWhiteSpace(Url))
             {
                 writer.WritePropertyName("url");
                 writer.WriteValue(Url);
